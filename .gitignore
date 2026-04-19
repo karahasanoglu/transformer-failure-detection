@@ -1,1 +1,4 @@
 /.venv/
+/.codex
+/uv.lock
+/.idea
