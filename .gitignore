@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.python-version
+
+# Build artifacts
+build/
+dist/
+site/
+wheels/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE and editor folders
+.idea/
+.vscode/
+.fleet/
+.codex/
+
+# Test and cache files
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model and experiment outputs
+results/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+
+# Local data editor locks / temp files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+.~lock*
+
+# OS / local noise
+.DS_Store
+Thumbs.db
+desktop.ini
