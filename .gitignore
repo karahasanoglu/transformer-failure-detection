@@ -2,6 +2,7 @@
 .idea/
 .codex/
 __pycache__/
+__pycacke__/
 .codex
 pyproject.toml
 uv.lock
