@@ -1,0 +1,21 @@
+# IDE
+.idea/
+
+# virtual env
+.venv/
+
+# python cache
+__pycache__/
+*.pyc
+
+# uv
+uv.lock
+
+# codex
+.codex/
+
+# outputs
+results/
+
+# OS
+.DS_Store
