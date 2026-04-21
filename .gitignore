@@ -14,8 +14,7 @@ uv.lock
 # codex
 .codex/
 
-# outputs
-results/
+.codex
 
 # OS
 .DS_Store
