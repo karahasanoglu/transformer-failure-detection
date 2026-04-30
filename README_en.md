@@ -1,57 +1,55 @@
 # Transformer Failure Detection
 
-This repository is a multi-track research portfolio focused on transformer fault detection, condition monitoring, predictive maintenance, fault classification, and remaining useful life estimation. The `main` branch is designed not as a standalone experimental branch, but as an entry point that presents a structured overview of the projects developed across the other branches.
+This repository is a multi-branch research portfolio on transformer fault detection, condition monitoring, predictive maintenance, pseudo-anomaly risk modeling, fault diagnosis, and remaining useful life prediction.
 
-The studies collected in this repository share a common objective: improving reliability in power systems through early warning, maintenance prioritization, and data-driven decision support. At the same time, each branch addresses a different problem definition, data structure, and modeling strategy. For that reason, this README provides a clear and academically framed branch-level synthesis of the repository.
+The `main` branch is intended as the academic entry point of the repository. Instead of hosting one standalone experiment, it summarizes and compares the projects developed in the other branches. Each branch addresses a different data source, task definition, and modeling strategy.
 
-## Repository Structure and Access
+## Branch Map
 
-The main research branches in this repository are listed below:
+| Branch | Research Focus | Data Type | Main Task | Main Models |
+|---|---|---|---|---|
+| [`DGA_Analysis`](https://github.com/karahasanoglu/transformer-failure-detection/tree/DGA_Analysis) | Transformer fault type classification with DGA | Gas concentration table | 7-class classification | Decision Tree, Random Forest, SVM, Dense NN |
+| [`EFRI`](https://github.com/karahasanoglu/transformer-failure-detection/tree/EFRI) | Electrical fault classification from current and voltage | Three-phase current-voltage data | Multi-class classification | Decision Tree, Logistic Regression, Random Forest, SVM, NN |
+| [`Transformer_Monitoring`](https://github.com/karahasanoglu/transformer-failure-detection/tree/Transformer_Monitoring) | IoT-based transformer alarm prediction | Timestamped operational data | Binary classification | KNN, GaussianNB, Logistic Regression, Random Forest, XGBoost |
+| [`predictive_maintenance`](https://github.com/karahasanoglu/transformer-failure-detection/tree/predictive_maintenance) | Pseudo-risk labeling and SVM classification for distribution transformers | Annual transformer/network data | Pseudo-anomaly classification | KMeans, Isolation Forest, RBF SVM |
+| [`2019-2020-Predictive`](https://github.com/karahasanoglu/transformer-failure-detection/tree/2019-2020-Predictive) | Learning from 2019 and testing pseudo-risk prediction on 2020 | Annual transformer/network data | Forward-year pseudo-risk classification | Random Forest, XGBoost, Autoencoder |
+| [`rul_and_failureType_prediction`](https://github.com/karahasanoglu/transformer-failure-detection/tree/rul_and_failureType_prediction) | Joint FDD and RUL prediction from DGA time series | Multivariate DGA time series | Classification + regression | GRNN-like model, Random Forest, GRU, LSTM |
 
-- [`DGA_Analysis`](https://github.com/karahasanoglu/transformer-failure-detection/tree/DGA_Analysis)
-- [`EFRI`](https://github.com/karahasanoglu/transformer-failure-detection/tree/EFRI)
-- [`Transformer_Monitoring`](https://github.com/karahasanoglu/transformer-failure-detection/tree/Transformer_Monitoring)
-- [`predictive_maintenance`](https://github.com/karahasanoglu/transformer-failure-detection/tree/predictive_maintenance)
-- [`rul_and_failureType_prediction`](https://github.com/karahasanoglu/transformer-failure-detection/tree/rul_and_failureType_prediction)
+## Repository Scope
 
-Each branch represents a distinct research problem and an independent experimental workflow. The following sections summarize these branches in a systematic and academically interpretable form.
+The projects are not simple variations of one dataset. They study transformer reliability from different measurement sources and decision levels:
 
-## Branch-Level Academic Analysis
+- internal fault diagnosis using DGA gas measurements,
+- electrical fault classification using three-phase current and voltage signals,
+- alarm prediction from IoT-based transformer monitoring data,
+- pseudo-risk modeling from annual transformer and network characteristics,
+- fault diagnosis and RUL prediction from DGA time series.
 
-### 1. `DGA_Analysis`
+Taken together, the repository shows that predictive maintenance is not only a model selection problem. Data reliability, target definition, class imbalance, temporal generalization, feature engineering, and metric choice are equally important.
 
-Branch link:
+## 1. DGA_Analysis
 
-- https://github.com/karahasanoglu/transformer-failure-detection/tree/DGA_Analysis
+`DGA_Analysis` uses Dissolved Gas Analysis data to classify transformer fault types. Two DGA datasets are merged into a common label space, gas-ratio features are engineered, and several models are compared.
 
-#### Objective
-
-This branch focuses on multi-class fault type classification in power transformers using Dissolved Gas Analysis (DGA) data. The main objective is to merge DGA datasets from different sources into a shared label space and perform transformer fault diagnosis using gas concentration variables and ratio-based features.
-
-#### Problem Definition
-
-The task is formulated as a 7-class fault diagnosis problem. The target classes are:
-
-- `PD`: Partial Discharge
-- `D1`: Low Energy Discharge
-- `D2`: High Energy Discharge
-- `T1`: Thermal Fault < 300C
-- `T2`: Thermal Fault 300C - 700C
-- `T3`: Thermal Fault > 700C
-- `NF`: No Fault / Normal
-
-#### Datasets Used
-
-This branch uses two separate DGA datasets:
+Datasets:
 
 - `data/raw/DGA-dataset.csv`
 - `data/raw/DGA_dataset2.csv`
+- `data/raw/dga_merged_dataset.csv`
 
-These datasets are merged during preprocessing and standardized into a common labeling framework. This logic is implemented in `src/data_preprocessing.py`.
+Target classes:
 
-#### Input Variables
+| Class | Meaning |
+|---|---|
+| `PD` | Partial Discharge |
+| `D1` | Low Energy Discharge |
+| `D2` | High Energy Discharge |
+| `T1` | Thermal Fault < 300C |
+| `T2` | Thermal Fault 300C - 700C |
+| `T3` | Thermal Fault > 700C |
+| `NF` | No Fault / Normal |
 
-The primary gas variables are:
+Main variables:
 
 - `H2`
 - `CH4`
@@ -59,57 +57,38 @@ The primary gas variables are:
 - `C2H4`
 - `C2H2`
 
-In addition, domain-informed ratio features are generated:
+Engineered ratios:
 
 - `R1 = CH4 / H2`
 - `R2 = C2H2 / C2H4`
 - `R4 = C2H6 / CH4`
 - `R5 = C2H4 / C2H6`
 
-Instead of conventional standard deviation-based normalization, the branch applies IQR-based robust scaling.
+Reported results:
 
-#### Models Used
+| Model | Result |
+|---|---:|
+| Decision Tree | Test accuracy about `0.8960` |
+| Random Forest | Test accuracy about `0.8936` |
+| SVM | Test accuracy about `0.7933` |
+| Dense Neural Network | Test accuracy about `0.75` |
 
-This branch includes a comparative evaluation of the following models:
+Academic interpretation: for DGA-based tabular data, classical machine learning remains highly competitive. Tree-based methods are especially strong because they handle nonlinear feature interactions while remaining comparatively interpretable.
 
-- Decision Tree
-- Random Forest
-- Support Vector Machine
-- Dense Neural Network
+## 2. EFRI
 
-Code-level verification shows the main implementations are based on:
+`EFRI` classifies electrical fault types from three-phase current and voltage measurements.
 
-- `DecisionTreeClassifier`
-- `RandomForestClassifier`
-- `SVC`
-- `keras.Sequential`
+Dataset:
 
-#### Reported Findings
+- `data/classData.csv`
 
-Based on the branch README and the available code outputs:
+Input variables:
 
-- Decision Tree achieves approximately `0.896` test accuracy.
-- Random Forest achieves approximately `0.894` test accuracy.
-- SVM remains around `0.793` test accuracy.
-- The Dense Neural Network performs in the `0.75` range.
+- `Ia`, `Ib`, `Ic`
+- `Va`, `Vb`, `Vc`
 
-#### Academic Interpretation
-
-This branch shows that, for DGA-based transformer fault diagnosis, feature engineering combined with classical machine learning remains highly effective. In particular, tree-based models appear more stable than neural networks for structured and interpretable tabular data.
-
-### 2. `EFRI`
-
-Branch link:
-
-- https://github.com/karahasanoglu/transformer-failure-detection/tree/EFRI
-
-#### Objective
-
-This branch aims to classify electrical fault types in power systems using current and voltage measurements. Its core purpose is to build a classification framework capable of distinguishing multiple fault conditions from three-phase electrical signals.
-
-#### Problem Definition
-
-This branch addresses a multi-class electrical fault classification problem. The target classes are:
+Target classes:
 
 - `No Fault`
 - `LG Fault`
@@ -118,375 +97,222 @@ This branch addresses a multi-class electrical fault classification problem. The
 - `LLL Fault`
 - `GLLL Fault`
 
-The labels are derived from combinations of four fault indicator variables:
+Reported results:
 
-- `G`
-- `C`
-- `B`
-- `A`
+| Model | Accuracy |
+|---|---:|
+| Random Forest | `0.8709` |
+| Neural Network | `0.8560` |
+| Support Vector Machine | `0.8531` |
+| Decision Tree | `0.8442` |
+| Logistic Regression | `0.3223` |
 
-#### Dataset Used
+Academic interpretation: the poor Logistic Regression result indicates that this task is strongly nonlinear. Random Forest, SVM, and Neural Network models are more suitable for separating the fault classes. The main ambiguity appears between `GLLL Fault` and `LLL Fault`.
 
-This branch uses a single main dataset:
+## 3. Transformer_Monitoring
 
-- `data/classData.csv`
+`Transformer_Monitoring` predicts the `MOG_A` alarm variable from IoT-based distribution transformer monitoring data collected between June 25, 2019 and April 14, 2020 at 15-minute intervals.
 
-#### Input Variables
-
-Code inspection indicates that the predictive input variables are the following six continuous measurements:
-
-- `Ia`
-- `Ib`
-- `Ic`
-- `Va`
-- `Vb`
-- `Vc`
-
-The preprocessing pipeline includes:
-
-- scaling with `StandardScaler`,
-- label encoding with `LabelEncoder`,
-- categorical target conversion for the neural network workflow.
-
-#### Models Used
-
-The following models are evaluated in this branch:
-
-- Decision Tree
-- Logistic Regression
-- Neural Network
-- Random Forest
-- Support Vector Machine
-
-The primary model classes identified in the code are:
-
-- `DecisionTreeClassifier`
-- `LogisticRegression`
-- `RandomForestClassifier`
-- `SVC`
-- `tensorflow.keras.Sequential`
-
-#### Reported Findings
-
-According to the branch README:
-
-- Random Forest: approximately `0.8709` accuracy
-- Neural Network: approximately `0.856` test accuracy
-- SVM: approximately `0.8531` accuracy
-- Decision Tree: approximately `0.8442` accuracy
-- Logistic Regression: approximately `0.3223` accuracy
-
-#### Academic Interpretation
-
-This branch suggests that ensemble methods and kernel-based approaches are more suitable than linear models for this type of electrical fault classification task. The weak performance of Logistic Regression indicates that the class boundaries are likely highly nonlinear.
-
-### 3. `Transformer_Monitoring`
-
-Branch link:
-
-- https://github.com/karahasanoglu/transformer-failure-detection/tree/Transformer_Monitoring
-
-#### Objective
-
-This branch aims to predict alarm-like or abnormal operating conditions from IoT-based distribution transformer monitoring data. The target variable is `MOG_A`, representing a magnetic oil gauge alarm signal.
-
-#### Problem Definition
-
-The task is formulated as a binary classification problem. The goal is to predict the `MOG_A` alarm state from operational transformer measurements.
-
-#### Datasets Used
-
-This branch combines two timestamped data files:
+Datasets:
 
 - `data/Overview.csv`
 - `data/CurrentVoltage.csv`
 
-At the code level, these files are merged through the `DeviceTimeStamp` field.
+The files are merged through `DeviceTimeStamp`.
 
-#### Input Variables
+Main variables:
 
-The main variables from `CurrentVoltage.csv` are:
+- voltage and current variables: `VL1`, `VL2`, `VL3`, `IL1`, `IL2`, `IL3`, `VL12`, `VL23`, `VL31`, `INUT`
+- monitoring variables: `OTI`, `WTI`, `ATI`, `OLI`, `OTI_A`, `OTI_T`
+- target: `MOG_A`
 
-- `VL1`
-- `VL2`
-- `VL3`
-- `IL1`
-- `IL2`
-- `IL3`
-- `VL12`
-- `VL23`
-- `VL31`
-- `INUT`
+Reported results:
 
-The main variables from `Overview.csv` are:
+| Model | Accuracy | Interpretation |
+|---|---:|---|
+| Random Forest | `0.9883` | Strong and balanced |
+| XGBoost | `0.9883` | Similar to Random Forest |
+| KNN | `0.9538` | Good overall, weaker on alarm recall |
+| Logistic Regression | `0.9370` | Interpretable baseline, limited alarm recall |
+| GaussianNB | `0.8480` | High alarm recall, more false positives |
 
-- `OTI`
-- `WTI`
-- `ATI`
-- `OLI`
-- `OTI_A`
-- `OTI_T`
+Academic interpretation: operational transformer monitoring data contains strong predictive information for alarm classification. Ensemble models provide the best balance, while GaussianNB may be useful when missing alarms is more costly than false positives.
 
-Target variable:
+## 4. predictive_maintenance
 
-- `MOG_A`
+`predictive_maintenance` studies annual transformer and network records for distribution transformer risk modeling. In the current pipeline, the original `Burned transformers 2019/2020` columns are not used as direct targets. They are removed during preprocessing to reduce target leakage and label reliability issues.
 
-The preprocessing pipeline uses `MinMaxScaler`.
-
-#### Models Used
-
-This branch includes the following models:
-
-- K-Nearest Neighbors
-- Gaussian Naive Bayes
-- Logistic Regression
-- Random Forest
-- XGBoost Classifier
-
-Code-level verification shows the following model classes:
-
-- `KNeighborsClassifier`
-- `GaussianNB`
-- `LogisticRegression`
-- `RandomForestClassifier`
-- `xgboost.XGBClassifier`
-
-#### Reported Findings
-
-According to the README:
-
-- Random Forest: approximately `0.9883` accuracy
-- XGBoost: approximately `0.9883` accuracy
-- KNN: approximately `0.9538` accuracy
-- Logistic Regression: approximately `0.9370` accuracy
-- GaussianNB: approximately `0.8480` accuracy
-
-#### Academic Interpretation
-
-This branch demonstrates that ensemble methods are highly effective for IoT-based transformer monitoring data. The strong performance of Random Forest and XGBoost suggests that the task contains robust nonlinear patterns embedded in structured operational data.
-
-### 4. `predictive_maintenance`
-
-Branch link:
-
-- https://github.com/karahasanoglu/transformer-failure-detection/tree/predictive_maintenance
-
-#### Objective
-
-This branch is a predictive maintenance prototype designed to estimate annual transformer failure risk. It reconstructs a literature-inspired problem setting while adopting a more transparent supervised learning framework aligned with the available labels.
-
-#### Problem Definition
-
-The core problem is binary classification of transformers as `burned` or `not burned`. In addition, the branch produces a fleet-level risk projection for the year 2021 using the 2019 and 2020 datasets.
-
-Accordingly, this branch combines two analytical layers:
-
-- binary failure risk classification,
-- future-year fleet-level risk projection.
-
-#### Datasets Used
-
-This branch relies on two Excel datasets:
+Datasets:
 
 - `data/raw/Dataset_Year_2019.xlsx`
 - `data/raw/Dataset_Year_2020.xlsx`
 
-At the code level, the target variable is resolved from the file name:
+Each file contains `15873` observations.
 
-- `Burned transformers 2019`
-- `Burned transformers 2020`
+Engineered variables include:
 
-#### Input Variables
+- `power_per_user`
+- `lightning_risk_score`
+- `network_density`
+- `historical_risk_index`
 
-Code verification shows that the core feature set includes:
+Pseudo-labeling methods:
 
-- `LOCATION`
-- `POWER`
-- `SELF_PROTECTION`
-- `AVG_DISCHARGE`
-- `MAX_DISCHARGE`
-- `BURNING_RATE`
-- `CRITICALITY`
-- `REMOVABLE_CONNECTORS`
-- `NUM_USERS`
-- `ENERGY_NOT_SUPPLIED`
-- `AIR_NETWORK`
-- `CIRCUIT_QUEUE`
-- `NETWORK_LENGTH`
-- `IS_RESIDENTIAL`
-- `IS_POLE`
+- `KMeans(n_clusters=2)`
+- `IsolationForest(contamination=0.05)`
 
-The branch also defines a wider engineered feature pool, including:
+Target definition:
 
-- `ENERGY_PER_USER`
-- `LIGHTNING_RISK`
-- `NETWORK_PER_POWER`
-- `DISCHARGE_RANGE`
-- `IS_MACRO`
-- `LOW_POWER`
-- `POWER_LIGHTNING`
-- `NETWORK_RISK`
+```text
+target = 1 if KMeans or Isolation Forest marks the observation as risky/anomalous
+target = 0 otherwise
+```
 
-However, both `main.py` and the branch README indicate that the primary comparative workflow emphasizes a simplified supervised SVM setup for closer methodological comparability with the reference article.
+Pseudo target distribution:
 
-#### Models Used
+| Dataset | target=0 | target=1 | Risk Rate |
+|---|---:|---:|---:|
+| 2019 | 12736 | 3137 | 19.76% |
+| 2020 | 12778 | 3095 | 19.50% |
 
-This branch is centered on an SVM-based modeling strategy:
+SVM results:
 
-- RBF-kernel SVM
-- `class_weight='balanced'`
-- validation-based threshold optimization
+| Experiment | Confusion Matrix | Overall Result |
+|---|---|---|
+| 2019 SVM | `[[2490, 63], [3, 619]]` | Accuracy `0.9792`, macro F1 `0.9682` |
+| 2020 SVM | `[[2491, 65], [6, 613]]` | Accuracy `0.9776`, macro F1 `0.9656` |
+| 2019-2020 SVM | `[[4995, 95], [9, 1251]]` | Accuracy about `0.98`, macro F1 about `0.97` |
 
-Code inspection confirms that the main implementation is built on `sklearn.svm.SVC`.
+Academic interpretation: these results should not be interpreted as verified field-failure prediction. The SVM learns a pseudo-risk target produced by unsupervised methods. The branch is valuable because it tests whether unsupervised risk definitions are separable by a supervised classifier.
 
-#### Reported Findings
+## 5. 2019-2020-Predictive
 
-The latest results reported in the README are:
+`2019-2020-Predictive` extends the pseudo-risk pipeline with a more realistic temporal design: 2019 is used for training/validation and 2020 is used as a forward-year test set.
 
-- For 2019: best model `Reduced SVM`, `F1 = 0.3467`, `Recall = 0.5098`, `Accuracy = 0.7164`
-- For 2020: best model `Full SVM`, `F1 = 0.2710`, `Recall = 0.5250`, `Accuracy = 0.7135`
+The original `Burned transformers` columns are again removed, and the target is generated through KMeans and Isolation Forest.
 
-For the 2021 projection, the README reports:
+Target meaning:
 
-- project estimate: `1275`
-- article reference: `852`
+| Label | Meaning |
+|---:|---|
+| `0` | Normal or low-risk observation |
+| `1` | Pseudo-anomalous or high-risk observation |
 
-#### Academic Interpretation
+Models:
 
-This branch clearly illustrates that accuracy alone is insufficient for predictive maintenance tasks with strong class imbalance. The explicit use of threshold tuning, recall, PR-AUC, and balanced accuracy reflects a sound methodological perspective. For this reason, the branch contributes not only through modeling, but also through evaluation design.
+- Random Forest
+- XGBoost
+- Autoencoder anomaly detection
 
-### 5. `rul_and_failureType_prediction`
+Results:
 
-Branch link:
+| Model | Accuracy | target=1 Precision | target=1 Recall | target=1 F1 | Interpretation |
+|---|---:|---:|---:|---:|---|
+| Random Forest | `0.9911` | `0.98` | `0.97` | `0.98` | Strong and balanced |
+| XGBoost | `0.9915` | `0.99` | `0.96` | `0.98` | Fewer false positives, slightly more false negatives |
+| Autoencoder | `0.9214` | `0.7276` | `0.9538` | `0.8255` | High risk-class recall, more false positives |
 
-- https://github.com/karahasanoglu/transformer-failure-detection/tree/rul_and_failureType_prediction
+Confusion matrices:
 
-#### Objective
+```text
+Random Forest:
+[[12714, 64],
+ [78, 3017]]
 
-This branch addresses two related predictive maintenance problems for power transformers within a single framework:
+XGBoost:
+[[12755, 23],
+ [112, 2983]]
+
+Autoencoder:
+[[11673, 1105],
+ [143, 2952]]
+```
+
+Academic interpretation: this branch clearly shows the trade-off between precision and recall in maintenance risk screening. Random Forest and XGBoost learn pseudo labels very accurately, while the Autoencoder is more sensitive to risk-like observations but produces more false alarms.
+
+## 6. rul_and_failureType_prediction
+
+`rul_and_failureType_prediction` jointly studies two tasks:
 
 - `FDD`: Fault Detection and Diagnosis
 - `RUL`: Remaining Useful Life prediction
 
-The objective is to use DGA-based time series data both for fault diagnosis and for estimation of the remaining useful life of the equipment.
-
-#### Problem Definition
-
-This branch represents a multi-task predictive maintenance setting:
-
-- the FDD component is a multi-class classification problem,
-- the RUL component is a regression problem with a continuous target.
-
-#### Dataset Structure
-
-The branch stores the raw data as many CSV time-series files:
+The raw data consists of many CSV time-series files:
 
 - `data/raw/data_train/`
 - `data/raw/data_test/`
 - `data/raw/data_labels/`
 
-The label files contain two targets:
-
-- `FDD label`
-- `RUL label`
-
-Processed datasets are stored as `.npy` arrays:
-
-- `data/processed_merged/train_set/`
-- `data/processed_merged/val_set/`
-- `data/processed_merged/test_set/`
-
-The README reports the following tensor shapes:
-
-- `train: (1680, 200, 4)`
-- `val: (420, 200, 4)`
-- `test: (900, 200, 4)`
-
-#### Input Variables
-
-Code inspection shows that the fixed-length time series are constructed from four gas variables:
+Gas variables:
 
 - `H2`
 - `CO`
 - `C2H4`
 - `C2H2`
 
-Each sample is converted into a sequence of `200` time steps with `4` features.
+All samples are converted into fixed-length sequences:
 
-On the FDD side, statistical summaries and ratio-based features are also extracted. According to the branch README, the main ratios are:
+```text
+(sequence_length, feature_count) = (200, 4)
+```
+
+Processed tensor sizes:
+
+| Split | Shape |
+|---|---|
+| Train | `(1680, 200, 4)` |
+| Validation | `(420, 200, 4)` |
+| Test | `(900, 200, 4)` |
+
+FDD features include statistical summaries for each gas variable and ratio features:
 
 - `R1 = H2 / CO`
 - `R2 = C2H2 / C2H4`
 - `R3 = H2 / C2H4`
 - `R4 = CO / C2H2`
 
-#### Models Used
+FDD results:
 
-This branch includes two model families.
+| Model | Accuracy | Macro F1 | Weighted F1 |
+|---|---:|---:|---:|
+| GRNN-like model | `0.92` | `0.80` | `0.92` |
+| Random Forest | `0.96` | `0.91` | `0.96` |
 
-For FDD:
+RUL results:
 
-- GRNN-like classifier
-- Random Forest
+| Model | Validation MAE | Validation RMSE | Test MAE | Test RMSE |
+|---|---:|---:|---:|---:|
+| GRU | `9.981` | `15.052` | `10.438` | `15.789` |
+| LSTM | `221.588` | `245.454` | `218.608` | `243.766` |
 
-For RUL:
+Academic interpretation: this is the broadest branch in the repository because it combines feature-based FDD classification with sequence-based RUL regression. Random Forest is the strongest FDD model, and GRU is much stronger than LSTM in the reported RUL setup. The GRU/LSTM comparison should still be interpreted carefully because the models use different windowing and target-scaling strategies.
 
-- GRU
-- LSTM
+## Cross-Branch Findings
 
-Code-level verification shows the following core model classes:
+Several methodological patterns appear across the repository:
 
-- `RandomForestClassifier`
-- `tensorflow.keras.layers.GRU`
-- `tensorflow.keras.layers.LSTM`
+1. Tree-based ensemble models are repeatedly strong on structured transformer datasets.
+2. DGA ratio features provide useful domain-informed information for fault diagnosis.
+3. Linear models are often insufficient for electrical fault classification and alarm prediction.
+4. In imbalanced maintenance settings, accuracy alone is not enough; precision, recall, F1, macro F1, confusion matrices, MAE, and RMSE must be interpreted together.
+5. Pseudo-labeled branches evaluate learnability of algorithmic risk definitions, not verified field-failure prediction.
+6. RUL prediction depends strongly on sequence length, target scaling, and temporal modeling assumptions.
 
-#### Reported Findings
+## Academic Limitations
 
-The main findings reported in the README are:
+This repository is a research and prototyping environment. Important limitations include:
 
-For FDD:
+- Some branches contain absolute file paths, which should be converted to project-relative paths for portability.
+- The branches do not yet share a unified experiment tracking pipeline.
+- Some results are based on a single train-test split; broader cross-validation or temporal validation would strengthen the conclusions.
+- In pseudo-labeled branches, `target=1` does not mean confirmed failure.
+- For imbalanced tasks, accuracy should not be used as the only evaluation metric.
 
-- Random Forest is reported as the strongest FDD model within the branch.
+## Conclusion
 
-For RUL:
+This repository demonstrates multiple data-driven approaches to transformer fault detection and predictive maintenance. Its central message is that no single model is universally best. The appropriate method depends on the data source, target reliability, temporal structure, class imbalance, and the operational cost of false positives and false negatives.
 
-- GRU: `Validation MAE = 9.981`, `Validation RMSE = 15.052`, `Test MAE = 10.438`, `Test RMSE = 15.789`
-- LSTM: `Validation MAE = 221.588`, `Validation RMSE = 245.454`, `Test MAE = 218.608`, `Test RMSE = 243.766`
-
-#### Academic Interpretation
-
-This branch is especially valuable because it brings together two major transformer maintenance tasks under a shared data framework. The combination of time-series-based RUL modeling and feature-based FDD classification creates a broad experimental space. The reported results suggest that, under the current setup, GRU is substantially more suitable than LSTM for the RUL task.
-
-## Comparative Summary Across Branches
-
-| Branch | Main Objective | Data Type | Primary Task | Main Model Families |
-|---|---|---|---|---|
-| `DGA_Analysis` | Fault type classification using DGA | Tabular data | Multi-class classification | Decision Tree, Random Forest, SVM, Dense NN |
-| `EFRI` | Electrical fault classification | Current-voltage tabular data | Multi-class classification | Decision Tree, Logistic Regression, Random Forest, SVM, NN |
-| `Transformer_Monitoring` | Alarm prediction from IoT monitoring data | Timestamped tabular data | Binary classification | KNN, GaussianNB, Logistic Regression, Random Forest, XGBoost |
-| `predictive_maintenance` | Annual failure risk and maintenance prioritization | Annual operational/network data | Binary classification + risk projection | RBF SVM |
-| `rul_and_failureType_prediction` | Joint FDD and RUL modeling | DGA time series | Multi-class classification + regression | GRNN, Random Forest, GRU, LSTM |
-
-## General Interpretation
-
-When the repository is viewed as a whole, three broad patterns emerge:
-
-1. For transformer-related tabular datasets, tree-based ensemble models repeatedly deliver the strongest performance.
-2. In imbalanced predictive maintenance settings, accuracy alone is not sufficient; recall, F1, PR-AUC, and balanced accuracy become much more meaningful.
-3. For DGA-based analysis, both ratio-based feature engineering and time-series modeling provide value, but the most appropriate model family depends on the specific task.
-
-Taken together, the repository should be understood not as a single-model solution, but as an experimental research portfolio showing how different modeling strategies behave under different transformer maintenance and fault analysis scenarios.
-
-## References
-
-This section lists the article titles found in the current local folder structure:
-
-1. `Distribution Transformer Failure Prediction for Predictive Maintenance Using Hybrid One-Class Deep SVDD Classification and Lightning Strike Failures Data`
-2. `A cognitive system for fault prognosis in power transformers`
-3. `AI-Enabled Predictive Maintenance for Distribution Transformers`
-4. `On the use of Machine Learning for predictive maintenance of power transformers`
-5. `Predictive Maintenance for Distribution System Operators in Increasing Transformers' Reliability`
-6. `Dataset of distribution transformers for predictive maintenance`
+A robust transformer maintenance workflow therefore requires more than a high-accuracy model. It also requires careful preprocessing, domain-informed feature engineering, explicit target definition, appropriate metrics, and honest interpretation of methodological limits.
 
 ## Developer
 
