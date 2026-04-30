@@ -55,3 +55,5 @@ temp/
 # If the raw data cannot be shared, uncomment these lines:
 # data/raw/
 # data/processed/
+
+uv.lock
