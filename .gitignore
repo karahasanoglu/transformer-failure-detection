@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Model artifacts and experiment outputs
+*.h5
+*.keras
+*.pkl
+*.joblib
+*.onnx
+*.pb
+checkpoints/
+logs/
+runs/
+
+# Local scratch files
+tmp/
+temp/
+
+# Project-specific generated files
+*.log
+
+
+.codex
+# Data is currently small enough to keep in the project for reproducibility.
+# If the raw data cannot be shared, uncomment these lines:
+# data/raw/
+# data/processed/
